@@ -112,6 +112,7 @@ PROCESS_THREAD(main_proc, ev, data)
     /* Update the broadcasted data on an interval */
     while (1) {
         message++;
+        printf("Broadcasting new state, %ld, [ID: 0x%08lx]\n", message, BROADCAST_ID_STATE);
         mtk_broadcast_update(BROADCAST_ID_STATE, &message, sizeof(message));
 
         etimer_set(&et, BROADCAST_UPDATE_INTERVAL * CLOCK_SECOND);
