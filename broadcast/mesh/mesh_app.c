@@ -1,27 +1,27 @@
 /*
-* MIT License
-*
-* Copyright (c) 2023 LumenRadio AB
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-*/
+ * MIT License
+ *
+ * Copyright (c) 2023 LumenRadio AB
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
 
 #include <mira.h>
 #include <stdio.h>
@@ -44,7 +44,7 @@ static const mira_net_config_t net_config = {
         0x11, 0x12, 0x13, 0x14,
         0x21, 0x22, 0x23, 0x24,
         0x31, 0x32, 0x33, 0x34,
-        0x41, 0x42, 0x43, 0x44
+        0x41, 0x42, 0x43, 0x44,
     },
     .mode = MIRA_NET_MODE_MESH,
     .rate = MIRA_NET_RATE_FAST,
@@ -52,22 +52,19 @@ static const mira_net_config_t net_config = {
     .prefix = NULL /* default prefix */
 };
 
-MIRA_IODEFS(
-    MIRA_IODEF_NONE,    /* fd 0: stdin */
-    MIRA_IODEF_UART(0), /* fd 1: stdout */
-    MIRA_IODEF_NONE     /* fd 2: stderr */
-    /* More file descriptors can be added, for use with dprintf(); */
+MIRA_IODEFS(MIRA_IODEF_NONE,    /* fd 0: stdin */
+            MIRA_IODEF_UART(0), /* fd 1: stdout */
+            MIRA_IODEF_NONE     /* fd 2: stderr */
+                                /* More file descriptors can be added, for use with dprintf(); */
 );
 
 PROCESS(main_proc, "Main process");
 
-int broadcast_init(
-    void);
+int broadcast_init(void);
 
 static uint32_t message;
 
-void mira_setup(
-    void)
+void mira_setup(void)
 {
     mira_status_t uart_ret;
     mira_uart_config_t uart_config = {
@@ -107,7 +104,7 @@ PROCESS_THREAD(main_proc, ev, data)
     mira_status_t result = mira_net_init(&net_config);
     if (result) {
         printf("FAILURE: mira_net_init returned %d\n", result);
-        while (1);
+        while (1) {}
     }
 
     /* Initialize the broadcast service after the network is started */
@@ -121,19 +118,16 @@ PROCESS_THREAD(main_proc, ev, data)
         mira_net_state_t net_state = mira_net_get_state();
 
         if (net_state != MIRA_NET_STATE_JOINED) {
-            printf(
-                "Waiting for network (state is %s)\n",
-                net_state == MIRA_NET_STATE_NOT_ASSOCIATED ? "not associated"
-                : net_state == MIRA_NET_STATE_ASSOCIATED ? "associated"
-                : net_state == MIRA_NET_STATE_JOINED ? "joined"
-                : "UNKNOWN"
-            );
+            printf("Waiting for network (state is %s)\n",
+                   net_state == MIRA_NET_STATE_NOT_ASSOCIATED ? "not associated"
+                   : net_state == MIRA_NET_STATE_ASSOCIATED   ? "associated"
+                   : net_state == MIRA_NET_STATE_JOINED       ? "joined"
+                                                              : "UNKNOWN");
             etimer_set(&timer, CHECK_NET_INTERVAL * CLOCK_SECOND);
         } else {
             printf("State: joined\n");
-            etimer_set(&timer,  PRINT_STATUS_INTERVAL * CLOCK_SECOND);
+            etimer_set(&timer, PRINT_STATUS_INTERVAL * CLOCK_SECOND);
         }
-        
 
         PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
     }
@@ -141,12 +135,11 @@ PROCESS_THREAD(main_proc, ev, data)
     PROCESS_END();
 }
 
-void message_update_cb(
-    uint32_t data_id,
-    void *data,
-    mira_size_t size,
-    const mira_net_udp_callback_metadata_t *metadata,
-    void *storage)
+void message_update_cb(uint32_t data_id,
+                       void* data,
+                       mira_size_t size,
+                       const mira_net_udp_callback_metadata_t* metadata,
+                       void* storage)
 {
     if (data == NULL || size > sizeof(message)) {
         printf("ERROR: Malformed data\n");
@@ -154,7 +147,6 @@ void message_update_cb(
         memcpy(&message, data, size);
         printf("New state received, %ld, [ID: 0x%08lx]\n", message, data_id);
     }
-
 }
 
 int broadcast_init()
@@ -168,18 +160,16 @@ int broadcast_init()
     }
 
     status = mtk_broadcast_init(&broadcast_addr, BROADCAST_UDP_PORT);
-    
+
     if (status != MTK_BROADCAST_SUCCESS) {
         return status;
     }
 
-    status = mtk_broadcast_register(
-        BROADCAST_ID_STATE,
-        &message, /* state message */
-        sizeof(message), /* size */
-        message_update_cb,
-        NULL);
+    status = mtk_broadcast_register(BROADCAST_ID_STATE,
+                                    &message,        /* state message */
+                                    sizeof(message), /* size */
+                                    message_update_cb,
+                                    NULL);
 
     return status;
-
 }
