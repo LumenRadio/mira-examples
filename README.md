@@ -25,3 +25,4 @@ Then build the example as described in the example's README.md.
 | Name                                                  | Description                                                                                       |
 | ---                                                   | ---                                                                                               |
 | [Broadcast example](examples/broadcast/README.md)     | Showcase of [mtk_broadcast](https://github.com/LumenRadio/mira-toolkit/tree/main/mtk_broadcast)   |
+| [Flash write example](examples/flash_write/README.md) | ---                                                                                               |
