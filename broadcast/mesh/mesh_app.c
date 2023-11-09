@@ -26,6 +26,7 @@
 #include <mira.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "../../vendor/mira-toolkit/mtk_broadcast/mtk_broadcast.h"
 
@@ -101,9 +102,9 @@ PROCESS_THREAD(main_proc, ev, data)
 
     printf("Starting Node (Sender).\n");
 
-    mira_status_t result = mira_net_init(&net_config);
-    if (result) {
-        printf("FAILURE: mira_net_init returned %d\n", result);
+    res = mira_net_init(&net_config);
+    if (res != MIRA_SUCCESS) {
+        printf("FAILURE: mira_net_init returned %d\n", (int)res);
         while (1) {}
     }
 
@@ -111,7 +112,7 @@ PROCESS_THREAD(main_proc, ev, data)
 
     res = broadcast_init();
     if (res) {
-        printf("ERROR: broadcast_init() failed. (%d)\n", res);
+        printf("ERROR: broadcast_init() failed. (%d)\n", (int)res);
     }
 
     while (1) {
@@ -145,7 +146,7 @@ void message_update_cb(uint32_t data_id,
         printf("ERROR: Malformed data\n");
     } else {
         memcpy(&message, data, size);
-        printf("New state received, %ld, [ID: 0x%08lx]\n", message, data_id);
+        printf("New state received, %" PRIu32 ", [ID: 0x%" PRIx32 "]\n", message, data_id);
     }
 }
 

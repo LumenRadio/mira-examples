@@ -1,14 +1,33 @@
-/*----------------------------------------------------------------------------
-Copyright (c) 2023 LumenRadio AB
-This code is the property of LumenRadio AB and may not be redistributed in any
-form without prior written permission from LumenRadio AB.
-
-This example is provided as is, without warranty.
-----------------------------------------------------------------------------*/
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 LumenRadio AB
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
 
 #include <mira.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #define WRITE_AREA_SIZE 0x10000
 
@@ -57,10 +76,10 @@ PROCESS_THREAD(main_proc, ev, data)
 {
     static mira_status_t res;
     static uint32_t page_size;
-    static uint32_t page;
+    static uintptr_t page_offset;
     static uint8_t num_pages;
-    static uint32_t start_address;
-    static uint32_t write_offset;
+    static uintptr_t start_address;
+    static uintptr_t write_offset;
     static dummy_data_t dummy_data;
     static int i;
 
@@ -68,7 +87,7 @@ PROCESS_THREAD(main_proc, ev, data)
     /* Pause once, so we don't run anything before finish of startup */
     PROCESS_PAUSE();
 
-    start_address = (uint32_t)&__SwapStart - WRITE_AREA_SIZE;
+    start_address = (uintptr_t)&__SwapStart - WRITE_AREA_SIZE;
 
     /* Initialise dummy data to non-zero value*/
     for (i = 0; i < sizeof(dummy_data) / sizeof(dummy_data.u32[0]); i++) {
@@ -79,12 +98,12 @@ PROCESS_THREAD(main_proc, ev, data)
     page_size = mira_flash_get_page_size();
     num_pages = (WRITE_AREA_SIZE) / page_size;
     for (i = 0; i < num_pages; i++) {
-        page = start_address + (page_size * i);
-        printf("erasing page: 0x%08lx\n", page);
+        page_offset = start_address + (page_size * i);
+        printf("erasing page: 0x%" PRIx32 "\n", (uint32_t)page_offset);
         do {
-            res = mira_flash_erase_page(page);
+            res = mira_flash_erase_page(page_offset);
             if (res != MIRA_SUCCESS) {
-                printf("!mira_flash_erase_page() failed: %d, retrying...\n", res);
+                printf("!mira_flash_erase_page() failed: %d, retrying...\n", (int)res);
             }
             PROCESS_WAIT_WHILE(mira_flash_is_working());
             if (!mira_flash_succeeded()) {
@@ -94,13 +113,15 @@ PROCESS_THREAD(main_proc, ev, data)
     }
 
     /* Write to flash */
-    for (write_offset = start_address; write_offset < (uint32_t)&__SwapStart;
+    for (write_offset = start_address; write_offset < (uintptr_t)&__SwapStart;
          write_offset += sizeof(dummy_data)) {
         do {
-            printf("writing: 0x%08lx... at: 0x%08lx\n", dummy_data.u32[0], write_offset);
+            printf("writing: 0x%" PRIx32 "... at: 0x%" PRIx32 "\n",
+                   dummy_data.u32[0],
+                   (uint32_t)write_offset);
             res = mira_flash_write(write_offset, (void*)dummy_data.u32, sizeof(dummy_data));
             if (res != MIRA_SUCCESS) {
-                printf("!mira_flash_write failed: %d, retrying...\n", res);
+                printf("!mira_flash_write failed: %d, retrying...\n", (int)res);
             }
             PROCESS_WAIT_WHILE(mira_flash_is_working());
             if (!mira_flash_succeeded()) {
@@ -109,7 +130,7 @@ PROCESS_THREAD(main_proc, ev, data)
         } while (res != MIRA_SUCCESS || !mira_flash_succeeded());
 
         /* Verify flash contents after write */
-        if (memcmp(dummy_data.u32, (uint32_t*)write_offset, sizeof(dummy_data)) != 0) {
+        if (memcmp(dummy_data.u32, (void*)write_offset, sizeof(dummy_data)) != 0) {
             printf("!flash content verification failed\n");
         }
     }

@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "../../vendor/mira-toolkit/mtk_broadcast/mtk_broadcast.h"
 
@@ -112,7 +113,9 @@ PROCESS_THREAD(main_proc, ev, data)
     /* Update the broadcasted data on an interval */
     while (1) {
         message++;
-        printf("Broadcasting new state, %ld, [ID: 0x%08lx]\n", message, BROADCAST_ID_STATE);
+        printf("Broadcasting new state, %" PRIu32 ", [ID: 0x%" PRIx32 "]\n",
+               message,
+               (uint32_t)BROADCAST_ID_STATE);
         mtk_broadcast_update(BROADCAST_ID_STATE, &message, sizeof(message));
 
         etimer_set(&et, BROADCAST_UPDATE_INTERVAL * CLOCK_SECOND);
@@ -131,7 +134,7 @@ void message_update_cb(uint32_t data_id,
         printf("ERROR: Malformed data\n");
     } else {
         memcpy(&message, data, size);
-        printf("New state received, %ld, [ID: 0x%08lx]\n", message, data_id);
+        printf("New state received, %" PRIu32 ", [ID: 0x%" PRIx32 "]\n", message, data_id);
     }
 }
 
