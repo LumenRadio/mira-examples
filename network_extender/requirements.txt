@@ -1,0 +1,2 @@
+intelhex==2.3.0
+nrfutil==6.1.4

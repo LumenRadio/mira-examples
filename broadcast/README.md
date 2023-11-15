@@ -22,11 +22,10 @@ This example is dependent of the Mira toolkit `mtk_broadcast`.
 
 ### Building and flashing
 To build the examples, enter either `root/` or `mesh/` and run:
-If `mira-toolkit` and libmira is in `vendor/` simply run:
 ```
 make TARGET=<target>
 ```
-Otherwise change the path in the Makefiles or run:
+The example assumes that libmira and mira-toolkit is placed in vendor/, to specify another path run:
 ```
 make LIBDIR=<path-to-libmira> MTKDIR=<path-to-mira-toolkit> TARGET=<target>
 ```

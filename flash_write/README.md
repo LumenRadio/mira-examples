@@ -1,4 +1,4 @@
-# Example of flash writes using the mira_flash API
+## Example of flash writes using the mira_flash API
 
 This example uses the mira_flash API to write dummy data into flash memory.
 The example support the nrf52840ble-os and nrf52832ble-os targets. The example
@@ -10,6 +10,26 @@ FLASH area, right up until the start of the SWAP area.
 Do note that in practice, a separate flash area should be specified to not risk 
 overwriting the application. But in this small example application we know that 
 there is space left in the FLASH area.
+
+### How to build
+To build the example, in this directory run:  
+```
+make TARGET=<target>
+```
+The example assumes that libmira is placed in vendor/, to specify another path run:
+```
+make LIBDIR=<path-to-libmira> TARGET=<target>
+```
+
+To flash after building, add `flashall` or `flash.<programmer serial number>` to the make command:
+```
+make TARGET=<target> flashall
+``````
+or
+```
+make LIBDIR=<path-to-libmira> TARGET=<target> flashall
+```
+
 
 # Disclaimer
 
