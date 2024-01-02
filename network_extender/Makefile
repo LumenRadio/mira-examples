@@ -8,6 +8,8 @@ MIRA_DEPRECATED=0
 
 PRIVATE_KEY_FILE ?= private.key
 
+NRFUTIL=nrfutil
+
 TARGET ?= nrf52840ble-os
 LIBDIR ?= $(CURDIR)/../vendor/libmira
 
@@ -70,10 +72,10 @@ APPLICATION_VERSION=$(shell date +%s)
 	$(TRACE_OBJCOPY)
 	$(Q)$(TARGET_OBJCOPY) -O ihex $^ $@
 
-%.dfu: %.bin %-app.hex %-sd.hex | venv $(PRIVATE_KEY_FILE)
+%.dfu: %.bin %-app.hex %-sd.hex | $(PRIVATE_KEY_FILE)
 	echo "#define APPLICATION_VERSION $(APPLICATION_VERSION)" > fw_version.h
 	echo "Key file: $(PRIVATE_KEY_FILE)"
-	venv/bin/nrfutil pkg generate \
+	$(NRFUTIL) pkg generate \
 		--softdevice $*-sd.hex \
 		--application $*-app.hex \
 		--key-file $(PRIVATE_KEY_FILE) \
@@ -85,15 +87,7 @@ APPLICATION_VERSION=$(shell date +%s)
 
 dfu: $(PROJECT_NAME)-$(TARGET).dfu
 
-venv: requirements.txt
-	@echo "  VENV      $@"
-	$(Q)virtualenv -p python3.10 venv >/dev/null
-	@echo "  PIP       $<"
-	$(Q)venv/bin/pip install -r requirements.txt >/dev/null
-	$(Q)touch venv
-
 clean::
-	rm -rf venv
 	rm -rf private.key dfu_public_key.c
 	rm -rf *.dfu
 	rm -rf fw_version.h
@@ -111,9 +105,9 @@ $(if $(wildcard $(1)), \
 endef
 
 # Generate private and public keys
-private.key: venv
+private.key:
 	$(call fail_when_file_doesnt_exist,$@)
 	@echo "  GEN       $@"
-	$(Q)venv/bin/nrfutil keys generate $@ > /dev/null
+	$(Q)$(NRFUTIL) keys generate $@ > /dev/null
 	@echo "  GEN       dfu_public_key.c"
-	$(Q)venv/bin/nrfutil keys display --key pk --format code --out_file dfu_public_key.c $@
+	$(Q)$(NRFUTIL) keys display --key pk --format code --out_file dfu_public_key.c $@

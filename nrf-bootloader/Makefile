@@ -6,8 +6,7 @@ PROJECT_NAME     := secure_bootloader_usb_mbr_pca10056
 BINNAME          := usb_bootloader
 TARGETS          := $(BINNAME)_nrf52840
 OUTPUT_DIRECTORY := _build
-VENV             := $(PROJ_DIR)/venv
-NRFUTIL          := $(VENV)/bin/nrfutil
+NRFUTIL          := nrfutil
 SOFTDEVICE_HEX   := $(SDKDIR)/components/softdevice/s140/hex/s140_nrf52_7.2.0_softdevice.hex
 BOOTLOADER_VERSION := $(shell date +%s)
 BOOTLOADER_UART_DEBUG := no
@@ -267,7 +266,7 @@ TEMPLATE_PATH := $(SDKDIR)/components/toolchain/gcc
 
 # Regenerate the public key from private key.
 
-$(PROJ_DIR)/dfu_public_key.c: keys/priv.pem venv
+$(PROJ_DIR)/dfu_public_key.c: keys/priv.pem
 	@echo Generating $@
 	$(NRFUTIL) keys display --key pk --format code $< --out_file $@
 
@@ -279,7 +278,7 @@ $(if $(wildcard $(1)), \
 
 endef
 
-keys/priv.pem: venv
+keys/priv.pem:
 	$(call fail_when_file_doesnt_exist,$@)
 	@echo Generating $@
 	$(NRFUTIL) keys generate $@
@@ -294,10 +293,10 @@ include $(TEMPLATE_PATH)/Makefile.common
 $(OUTPUT_DIRECTORY)/$(BINNAME)_nrf52840.out: \
   LINKER_SCRIPT  := secure_bootloader_gcc_nrf52840.ld
 
-$(OUTPUT_DIRECTORY)/%.dfu $(OUTPUT_DIRECTORY)/%-version.h: $(OUTPUT_DIRECTORY)/%.hex | $(VENV) keys/priv.pem
+$(OUTPUT_DIRECTORY)/%.dfu $(OUTPUT_DIRECTORY)/%-version.h: $(OUTPUT_DIRECTORY)/%.hex | keys/priv.pem
 	@echo Generating $@
 	@echo "#define BL_VERSION ($(BOOTLOADER_VERSION))" > $(OUTPUT_DIRECTORY)/$*-version.h
-	$(VENV)/bin/nrfutil pkg generate \
+	$(NRFUTIL) pkg generate \
 		--bootloader $< \
 		--softdevice $(SOFTDEVICE_HEX) \
 		--key-file keys/priv.pem \
@@ -306,12 +305,6 @@ $(OUTPUT_DIRECTORY)/%.dfu $(OUTPUT_DIRECTORY)/%-version.h: $(OUTPUT_DIRECTORY)/%
 		--sd-req 0x0 \
 		--sd-id 0x100 \
 		$(OUTPUT_DIRECTORY)/$*.dfu
-
-venv: $(VENV)
-
-$(VENV): $(PROJ_DIR)/requirements.txt
-	virtualenv -p python3.10 $(VENV)
-	$(VENV)/bin/pip install -r $(PROJ_DIR)/requirements.txt
 
 $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
@@ -330,10 +323,10 @@ flash_sd:
 erase:
 	nrfjprog -f nrf52 --eraseall
 
-dfu_update: $(OUTPUT_DIRECTORY)/$(BINNAME)_nrf52840.dfu | $(VENV)
+dfu_update: $(OUTPUT_DIRECTORY)/$(BINNAME)_nrf52840.dfu
 	name=$(shell ../host/scripts/find-dfu) ; \
 		echo "Updating $$name via DFU:"; \
-		$(VENV)/bin/nrfutil dfu usb-serial \
+		$(NRFUTIL) dfu usb-serial \
 			-pkg $< \
 			-p "$$name"
 
@@ -352,7 +345,6 @@ sdk_config:
 # generate warnings regarding which can be ignored.
 clean:
 	rm -rf $(OUTPUT_DIRECTORY)
-	rm -rf venv
 	rm -rf $(PROJ_DIR)/keys/priv.pem $(PROJ_DIR)/dfu_public_key.c
 
 all-targets:

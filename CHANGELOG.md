@@ -11,3 +11,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added changelog file
 - Added broadcast example (before changelog)
 - Added the format-configuration repo from GitHub for clang-format config
+
+### Changed
+- Use new nrfutil version

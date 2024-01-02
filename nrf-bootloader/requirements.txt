@@ -1,2 +1,0 @@
-protobuf==3.20.1
-nrfutil==6.1.6

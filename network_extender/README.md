@@ -31,7 +31,7 @@ directory of this example.
     reset_to_dfu.py -d /dev/[YOUR_MIRAUSB_SERIAL_DEVICE]
     ```
 
-2. Upgrade the firmware with DFU (USB) using nrfutil:
+2. Upgrade the firmware with DFU (USB) using nrfutil (download from Nordic Semiconductor):
 
     ```bash
     nrfutil dfu usb-serial -p /dev/[YOUR_MIRAUSB_SERIAL_DEVICE] -pkg network_extender-mira_usb-nrf52840ble-os.dfu

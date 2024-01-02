@@ -15,7 +15,17 @@
 # Executables
 *.out
 *.hex
+*.bin
 
 vendor/
 
 !**/.keep
+
+# nRF SDK build dir
+_build
+
+# Generated private/public keys
+/fota_receiver_with_bootloader/bootloader/dfu_public_key.c
+/fota_receiver_with_bootloader/private.key
+/network_extender/dfu_public_key.c
+/network_extender/private.key

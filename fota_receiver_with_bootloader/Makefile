@@ -8,7 +8,7 @@ SDK_ROOT ?= $(SDKDIR)
 GCC_DIR ?= $(dir $(shell which arm-none-eabi-gcc))
 
 
-NRFUTIL=venv/bin/nrfutil
+NRFUTIL=nrfutil
 
 PRIVATE_KEY_FILE = private.key
 BLSETTINGS_FILE  = $(PROJECT_NAME)-$(TARGET_APP)-blsettings.hex
@@ -82,7 +82,7 @@ $(if $(wildcard $(1)), \
 	$(info File '$(1)' not found, creating one.))
 endef
 
-$(PRIVATE_KEY_FILE): venv
+$(PRIVATE_KEY_FILE):
 	$(call fail_when_file_doesnt_exist,$@)
 	@echo "  GEN       $@"
 	$(Q)$(NRFUTIL) keys generate $@ > /dev/null
@@ -94,7 +94,7 @@ $(TARGET_APP_FILE): $(PROJECT_NAME)-$(TARGET).hex venv
 	@echo "  HEXMERGE  $@"
 	$(Q)venv/bin/hexmerge.py $<:0x00027000:0x7DFFF -o $@
 
-$(BLSETTINGS_FILE): $(TARGET_APP_FILE) $(PRIVATE_KEY_FILE) venv
+$(BLSETTINGS_FILE): $(TARGET_APP_FILE) $(PRIVATE_KEY_FILE)
 	$(Q)rm -f $(BLSETTINGS_FILE)
 	@echo "  GEN       $@"
 	$(Q)$(NRFUTIL) settings generate --no-backup --family NRF52840 --application $< --application-version 0x1 --bootloader-version 0x1 --bl-settings-version 1 --key-file $(PRIVATE_KEY_FILE) $@
@@ -105,9 +105,9 @@ $(BLSETTINGS_FILE): $(TARGET_APP_FILE) $(PRIVATE_KEY_FILE) venv
 
 venv: requirements.txt
 	@echo "  VENV      $@"
-	$(Q)virtualenv -p python3.10 venv >/dev/null
+	$(Q)virtualenv -p python3 venv
 	@echo "  PIP       $<"
-	$(Q)venv/bin/pip install -r requirements.txt >/dev/null
+	$(Q)venv/bin/pip install -r requirements.txt
 	$(Q)touch venv
 
 all-targets:
