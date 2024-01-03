@@ -2,7 +2,7 @@ PROJECT_NAME = fota_receiver
 
 TARGET ?= nrf52840ble-os
 TARGET_APP ?= nrf52840ble-os-app
-LIBDIR ?= $(CURDIR)/../vendor/libmira
+LIBDIR ?= $(CURDIR)/../..
 SDKDIR ?= $(CURDIR)/../vendor/nrf5-sdk
 SDK_ROOT ?= $(SDKDIR)
 GCC_DIR ?= $(dir $(shell which arm-none-eabi-gcc))

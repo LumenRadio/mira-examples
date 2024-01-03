@@ -7,7 +7,7 @@ APPROTECT_DISABLED?=yes
 MIRA_DEPRECATED=0
 
 TARGET ?= nrf52832ble-os
-LIBDIR ?= $(CURDIR)/../vendor/libmira
+LIBDIR ?= $(CURDIR)/../..
 
 PLATFORM = $(firstword $(subst -, ,$(TARGET)))
 CFLAGS += -D$(PLATFORM)

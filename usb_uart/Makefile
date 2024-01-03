@@ -7,7 +7,7 @@ APPROTECT_DISABLED?=yes
 MIRA_DEPRECATED=0
 
 TARGET ?= nrf52840ble-os
-LIBDIR ?= $(CURDIR)/../vendor/libmira
+LIBDIR ?= $(CURDIR)/../..
 
 SUPPORTED_TARGETS += nrf52840ble-os
 SUPPORTED_TARGETS += nrf52832ble-os

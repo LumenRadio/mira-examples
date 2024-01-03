@@ -11,7 +11,7 @@ PRIVATE_KEY_FILE ?= private.key
 NRFUTIL=nrfutil
 
 TARGET ?= nrf52840ble-os
-LIBDIR ?= $(CURDIR)/../vendor/libmira
+LIBDIR ?= $(CURDIR)/../..
 
 SDKDIR ?= $(CURDIR)/../vendor/nrf5-sdk
 

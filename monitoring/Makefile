@@ -9,7 +9,7 @@ MIRA_DEPRECATED=0
 CFLAGS = -std=c99
 
 TARGET ?= nrf52832ble-os
-LIBDIR ?= $(CURDIR)/../vendor/libmira
+LIBDIR ?= $(CURDIR)/../..
 
 SOURCE_FILES = \
 	network_sender.c \

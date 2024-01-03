@@ -7,7 +7,7 @@ TARGET=nrf52840ble-net
 
 # Set to nrf5-sdk, to have access to hardware abstraction
 NRF5_SDK?=../vendor/nrf5-sdk
-MIRA_LIB?=../vendor/libmira
+MIRA_LIB?=../..
 
 SOURCES=\
 	main.c \
