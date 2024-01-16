@@ -5,7 +5,7 @@ This example shows how to setup a rf-slot running at regular intervals. The slot
 
 _NOTE: Using the rf-slots API can result in breaking radio regulations_
 
-_For more information read our [rf-slots documentation](https://docs.lumenrad.io/miraos/2.8.1/api/common/net/mira_net_rf_slots.html)_
+_For more information read our [rf-slots documentation](https://docs.lumenrad.io/miraos/latest/api/common/net/mira_net_rf_slots.html)_
 
 ### How to build
 To build the example, in this directory run:

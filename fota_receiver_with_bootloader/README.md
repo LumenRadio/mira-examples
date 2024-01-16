@@ -15,7 +15,7 @@ https://infocenter.nordicsemi.com/topic/sdk_nrf5_v17.1.0/lib_bootloader_modules.
 
 
 ## The process
-The Mira FOTA process in detail can be found at [Mira FOTA documentation](https://docs.lumenrad.io/miraos/2.8.1/api/common/mira_fota.html).
+The Mira FOTA process in detail can be found at [Mira FOTA documentation](https://docs.lumenrad.io/miraos/latest/api/common/mira_fota.html).
 
 After the FOTA transfer is complete the application takes over and does the following:
 
