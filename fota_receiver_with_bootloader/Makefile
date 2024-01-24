@@ -11,9 +11,6 @@ GCC_DIR ?= $(dir $(shell which arm-none-eabi-gcc))
 NRFUTIL=nrfutil
 
 PRIVATE_KEY_FILE = private.key
-BLSETTINGS_FILE  = $(PROJECT_NAME)-$(TARGET_APP)-blsettings.hex
-TARGET_APP_FILE  = $(PROJECT_NAME)-$(TARGET_APP).hex
-BOOTLOADER_PATH=bootloader/pca10056_ble/armgcc
 
 SOURCE_FILES = \
 	fota_receiver.c \
@@ -21,11 +18,29 @@ SOURCE_FILES = \
 	crc/crc.c
 
 CFLAGS += -I$(CURDIR)/crc
+
+ifeq ($(TARGET), nrf52840ble-os)
+BOOTLOADER_PATH=bootloader/pca10056_ble/armgcc
 CFLAGS += -I$(SDK_ROOT)/components/softdevice/s140/headers
 CFLAGS += -I$(SDK_ROOT)/components/softdevice/mbr/headers
 CFLAGS += -I$(SDK_ROOT)/config/nrf52840/config/
 CFLAGS += -DNRF52840_XXAA
 LDSCRIPT = $(CURDIR)/nrf52840_fota.ld
+TARGET_APP = nrf52840ble-os-app
+else ifeq ($(TARGET), nrf52832ble-os)
+BOOTLOADER_PATH=bootloader/pca10040_s132_ble/armgcc
+CFLAGS += -I$(SDK_ROOT)/components/softdevice/s132/headers
+CFLAGS += -I$(SDK_ROOT)/components/softdevice/mbr/headers
+CFLAGS += -I$(SDK_ROOT)/config/nrf52832/config/
+CFLAGS += -DNRF52832_XXAA
+LDSCRIPT = $(CURDIR)/nrf52832_fota.ld
+TARGET_APP = nrf52832ble-os-app
+else
+$(error TARGET=$(TARGET) is not supported!)
+endif
+
+BLSETTINGS_FILE  = $(PROJECT_NAME)-$(TARGET_APP)-blsettings.hex
+TARGET_APP_FILE  = $(PROJECT_NAME)-$(TARGET_APP).hex
 
 CFLAGS += -I$(SDK_ROOT)/components/libraries/bootloader/dfu
 CFLAGS += -I$(SDK_ROOT)/components/libraries/util
@@ -68,11 +83,19 @@ install.%: all
 	# Erase pages updated by the bootloader:
 	$(Q)$(NRF_PROG) -s "$*" --erasepage 0
 	$(Q)$(NRF_PROG) -s "$*" --eraseuicr
+ifeq ($(TARGET), nrf52840ble-os)
 	$(Q)$(NRF_PROG) -s "$*" --erasepage 0xfe000-0x100000
+else ifeq ($(TARGET), nrf52832ble-os)
+	$(Q)$(NRF_PROG) -s "$*" --erasepage 0x7e000-0x80000
+endif
 	# Program:
 	$(Q)$(NRF_PROG) -s "$*" --sectorerase --program $(PROJECT_NAME)-$(TARGET).hex --verify
 	$(Q)$(NRF_PROG) -s "$*" --sectorerase --program $(BLSETTINGS_FILE) --verify
+ifeq ($(TARGET), nrf52840ble-os)
 	$(Q)$(NRF_PROG) -s "$*" --sectorerase --program $(BOOTLOADER_PATH)/_build/nrf52840_xxaa_s140.hex --verify
+else ifeq ($(TARGET), nrf52832ble-os)
+	$(Q)$(NRF_PROG) -s "$*" --sectorerase --program $(BOOTLOADER_PATH)/_build/nrf52832_xxaa_s132.hex --verify
+endif
 	$(Q)$(NRF_PROG) -s "$*" --reset
 
 # $1 file under test
@@ -92,12 +115,20 @@ $(PRIVATE_KEY_FILE):
 $(TARGET_APP_FILE): $(PROJECT_NAME)-$(TARGET).hex venv
 	$(Q)rm -f $(TARGET_APP_FILE)
 	@echo "  HEXMERGE  $@"
+ifeq ($(TARGET), nrf52840ble-os)
 	$(Q)venv/bin/hexmerge.py $<:0x00027000:0x7DFFF -o $@
+else ifeq ($(TARGET), nrf52832ble-os)
+	$(Q)venv/bin/hexmerge.py $<:0x00026000:0x4CFFF -o $@
+endif
 
 $(BLSETTINGS_FILE): $(TARGET_APP_FILE) $(PRIVATE_KEY_FILE)
 	$(Q)rm -f $(BLSETTINGS_FILE)
 	@echo "  GEN       $@"
+ifeq ($(TARGET), nrf52840ble-os)
 	$(Q)$(NRFUTIL) settings generate --no-backup --family NRF52840 --application $< --application-version 0x1 --bootloader-version 0x1 --bl-settings-version 1 --key-file $(PRIVATE_KEY_FILE) $@
+else ifeq ($(TARGET), nrf52832ble-os)
+	$(Q)$(NRFUTIL) settings generate --no-backup --family NRF52 --application $< --application-version 0x1 --bootloader-version 0x1 --bl-settings-version 1 --key-file $(PRIVATE_KEY_FILE) $@
+endif
 
 0.bin: $(TARGET_APP_FILE)
 	rm -f 0.bin
@@ -112,8 +143,10 @@ venv: requirements.txt
 
 all-targets:
 	$(MAKE) TARGET=nrf52840ble-os
+	$(MAKE) TARGET=nrf52832ble-os fota_receiver-nrf52832ble-os.hex
 
 clean-all-targets:
 	$(MAKE) TARGET=nrf52840ble-os clean
+	$(MAKE) TARGET=nrf52832ble-os clean
 
 .PHONY: blsettings bin help bootloader

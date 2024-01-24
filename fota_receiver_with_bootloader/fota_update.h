@@ -35,7 +35,7 @@
 #define FOTA_INVALID_CRC 0xffffffff
 
 /**
- * @brief Initialize AirGlow FOTA
+ * @brief Initialize FOTA
  *
  * @param version Version of running firmware
  *

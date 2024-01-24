@@ -5,32 +5,32 @@ GROUP(-lgcc -lc_nano -lnosys)
 MEMORY
 {
 /* Active region for code */
-  MBR_SD (rx) :      ORIGIN = 0x00000000, LENGTH = 0x027000 - 0x000000
-  FLASH (rx) :       ORIGIN = 0x00027000, LENGTH = 0x07e000 - 0x027000
+  MBR_SD (rx) :      ORIGIN = 0x00000000, LENGTH = 0x26000
+  FLASH (rx) :       ORIGIN = 0x00026000, LENGTH = 0x27000
   
 /* For temporary storage of new firmware */
-  SWAP (rx) :        ORIGIN = 0x0007e000, LENGTH = 0x0f4000 - 0x07e000
+  SWAP (rx) :        ORIGIN = 0x0004D000, LENGTH = 0x27000
 
 /* Two configuration areas (App data) */
-  CONFIG2 (rx) :     ORIGIN = 0x000f4000, LENGTH = 0x0f5000 - 0x0f4000
-  CONFIG1 (rx) :     ORIGIN = 0x000f5000, LENGTH = 0x0f6000 - 0x0f5000
+  CONFIG2 (rx) :     ORIGIN = 0x00074000, LENGTH = 0x1000
+  CONFIG1 (rx) :     ORIGIN = 0x00075000, LENGTH = 0x1000
   
 /* Storage for device certificate (App data) */
-  FACTORY_CONFIG (rx) : ORIGIN = 0x000f6000, LENGTH = 0x0f7000 - 0x0f6000
+  FACTORY_CONFIG (rx) : ORIGIN = 0x00076000, LENGTH = 0x1000
 
 /* Bootloader, these values MUST match the values in:
  * bootloader/pca10056_ble/armgcc/secure_bootloader_gcc_nrf52.ld
  */
   /* FLASH in the bootloader script: */
-  BOOTLOADER (rx) :  ORIGIN = 0x000f7000, LENGTH = 0x0fe000 - 0x0f7000
+  BOOTLOADER (rx) :  ORIGIN = 0x00077000, LENGTH = 0x7000
   /* mbr_params_page in the bootloader script: */
-  MBRSETTINGS (rx) : ORIGIN = 0x000fe000, LENGTH = 0x0ff000 - 0x0fe000
+  MBRSETTINGS (rx) : ORIGIN = 0x0007e000, LENGTH = 0x1000
   /* bootloader_settings_page in the bootloader script: */
-  BLSETTINGS (rx) :  ORIGIN = 0x000ff000, LENGTH = 0x100000 - 0x0ff000
+  BLSETTINGS (rx) :  ORIGIN = 0x0007f000, LENGTH = 0x1000
 
 /* RAM */
-  SOFTDEVRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x20002300 - 0x20000000
-  RAM (rwx) :        ORIGIN = 0x20002300, LENGTH = 0x20040000 - 0x20002300
+  SOFTDEVRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x22f0
+  RAM (rwx) :        ORIGIN = 0x200022f0, LENGTH = 0xdd10
 }
 
 REGION_ALIAS("CERTIFICATE", FACTORY_CONFIG);

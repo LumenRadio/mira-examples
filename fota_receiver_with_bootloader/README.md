@@ -3,7 +3,7 @@
 This example shows a complete FOTA process including upgrading
 of the application (without the softdevice) by a bootloader.
 
-This example only works on nRF52840.
+This example works on nRF52840 and nRF52832.
 
 The bootloader in this project is Nordic's Secure Bootloader with BLE
 support.
@@ -33,7 +33,15 @@ then set the environment variable `SDK_ROOT` to its path:
 ```sh
 export SDK_ROOT=/path/to/sdk
 ```
-
+To build the bootloader for nRF52832 one have to build the `micro-ecc` external library
+included in nRF5-SDK.  
+The library is contained in `SDK_ROOT/external/micro-ecc`
+It can be built by running:
+```sh
+bash build_all.sh
+```
+Note: `build_all.sh` have CRLF line endings, depending on environment it might be
+required to change the line endings to LF instead of CRLF to be able to run the script.
 
 ### Build everything
 
@@ -43,7 +51,10 @@ created, if missing.
 
 Just run:
 ```sh
-make
+# For nRF52840
+make TARGET=nrf52840ble-os
+# For nRF52832
+make TARGET=nrf52832ble-os
 ```
 
 ## Flash the mesh node
@@ -52,7 +63,7 @@ Run the mesh node by flashing:
 1. MBR + SoftDevice + Application
 2. Bootloader
 3. Bootloader settings
-4. Certificate (NOTICE the address in the link script)
+4. Factory config (NOTICE the address in the link script)
 
 This is done by running:
 ```sh
@@ -60,10 +71,17 @@ SER=683123456
 DEVID=$(mira_license.py get_device_id -s $SER)
 
 # This installs the MBR, Softdevice, the application, the bootloader and the settings page:
-make install.$SER
+# For nRF52840
+make TARGET=nrf52840ble-os install.$SER
+# For nRF52832
+make TARGET=nrf52832ble-os install.$SER
 
 # The Mira License.
-mira_license.py license -s $SER -I $DEVID.lic -i $DEVID -a 0xf6000 -l 4096
+# For nRF52840:
+mira_license.py license -s $SER -I $DEVID.lic -i $DEVID -a 0xf6000 -l 0x1000
+
+# For nRF52832:
+mira_license.py license -s $SER -I $DEVID.lic -i $DEVID -a 0x76000 -l 0x1000
 ```
 
 Reset the card and start the application by running:
@@ -80,7 +98,8 @@ at log output coming from the card's serial port.
 Start up the Mira Gateway and make sure the mesh node joins the network.
 
 Remove the comment before `#define NEW_VERSION` in `fota_receiver.c` and run
-`make bin`. That creates a `0.bin` file.
+`make TARGET=nrf52840ble-os bin` or `make TARGET=nrf52832ble-os bin` depending on target. 
+That creates a `0.bin` file.
 
 Copy `0.bin` to the Mira Gateway's `firmwares` folder.
 
