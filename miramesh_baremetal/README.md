@@ -10,7 +10,7 @@ make all
 ```
 The example assumes that libmira and nrf5-sdk is placed in vendor/, to specify another path run:
 ```
-make MIRA_LIB=<path-to-libmira> NRF5_SDK=<path-to-nrf5-sdk> TARGET=<target>
+make MIRA_LIB=<path-to-libmira> SDKDIR=<path-to-nrf5-sdk> TARGET=<target>
 ```
 
 To flash after building, add `flash` to the make command:
@@ -19,5 +19,5 @@ make flash
 ``````
 or
 ```
-make MIRA_LIB=<path-to-libmira> NRF5_SDK=<path-to-nrf5-sdk> flash
+make MIRA_LIB=<path-to-libmira> SDKDIR=<path-to-nrf5-sdk> flash
 ```

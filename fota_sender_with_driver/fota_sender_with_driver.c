@@ -26,12 +26,12 @@
  */
 
 #include <mira.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "fota_crc_tool.h"
 #include "fota_driver.h"
-
 #define HEADER_SIZE 12
 
 static const mira_net_config_t net_config = {
@@ -127,7 +127,7 @@ PROCESS_THREAD(main_proc, ev, data)
         uint8_t slot_number;
         for (slot_number = 0; slot_number < NUMBER_OF_SLOTS; slot_number++) {
             if (mira_fota_is_valid(slot_number)) {
-                printf("Providing valid image for slot: %d with %ld bytes, version %d\n",
+                printf("Providing valid image for slot: %d with %" PRIu32 " bytes, version %d\n",
                        slot_number,
                        mira_fota_get_image_size(slot_number),
                        mira_fota_get_version(slot_number));

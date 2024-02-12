@@ -6,8 +6,8 @@ OBJCOPY=arm-none-eabi-objcopy
 TARGET=nrf52840ble-net
 
 # Set to nrf5-sdk, to have access to hardware abstraction
-NRF5_SDK?=../vendor/nrf5-sdk
-MIRA_LIB?=../..
+SDKDIR?=../vendor/nrf5-sdk
+LIBDIR?=../..
 
 SOURCES=\
 	main.c \
@@ -25,7 +25,7 @@ CFLAGS+= \
 	-DNRF52 \
 	-DNRF52832_XXAA
 INCLUDE_DIRS+=\
-	$(NRF5_SDK)/components/softdevice/s132/headers \
+	$(SDKDIR)/components/softdevice/s132/headers \
 	s132
 else
 ifeq ($(TARGET),nrf52833ble-net)
@@ -34,7 +34,7 @@ CFLAGS+= \
 	-DBOARD_PCA10100 \
 	-DNRF52833_XXAA
 INCLUDE_DIRS+=\
-	$(NRF5_SDK)/components/softdevice/s140/headers \
+	$(SDKDIR)/components/softdevice/s140/headers \
 	s140
 else
 ifeq ($(TARGET),nrf52840ble-net)
@@ -43,7 +43,7 @@ CFLAGS+= \
 	-DBOARD_PCA10056 \
 	-DNRF52840_XXAA
 INCLUDE_DIRS+=\
-	$(NRF5_SDK)/components/softdevice/s140/headers \
+	$(SDKDIR)/components/softdevice/s140/headers \
 	s140
 else
 $(error Only the targets nrf52832ble-net, nrf52833ble-net and nrf52840ble-net are supported by this example)
@@ -64,28 +64,28 @@ else
 endif
 
 SDK_SOURCES=\
-	$(NRF5_SDK)/components/boards/boards.c \
-	$(NRF5_SDK)/modules/nrfx/mdk/gcc_startup_$(SDK_TARGET).S \
-	$(NRF5_SDK)/modules/nrfx/mdk/system_$(SDK_TARGET).c
+	$(SDKDIR)/components/boards/boards.c \
+	$(SDKDIR)/modules/nrfx/mdk/gcc_startup_$(SDK_TARGET).S \
+	$(SDKDIR)/modules/nrfx/mdk/system_$(SDK_TARGET).c
 	
 INCLUDE_DIRS+=\
-	$(NRF5_SDK)/integration/nrfx \
-	$(NRF5_SDK)/modules/nrfx \
-	$(NRF5_SDK)/components/libraries/util \
-	$(NRF5_SDK)/components/boards \
-	$(NRF5_SDK)/modules/nrfx/mdk \
-	$(NRF5_SDK)/modules/nrfx/hal \
-	$(NRF5_SDK)/components/toolchain/cmsis/include \
-	$(MIRA_LIB)/include
+	$(SDKDIR)/integration/nrfx \
+	$(SDKDIR)/modules/nrfx \
+	$(SDKDIR)/components/libraries/util \
+	$(SDKDIR)/components/boards \
+	$(SDKDIR)/modules/nrfx/mdk \
+	$(SDKDIR)/modules/nrfx/hal \
+	$(SDKDIR)/components/toolchain/cmsis/include \
+	$(LIBDIR)/include
 
-LDSCRIPT_DIR=$(NRF5_SDK)/modules/nrfx/mdk
+LDSCRIPT_DIR=$(SDKDIR)/modules/nrfx/mdk
 
 OBJECTS=\
 	$(patsubst %.c,obj_$(TARGET)/%.o,$(SOURCES)) \
-	$(patsubst $(NRF5_SDK)/%.c,obj_$(TARGET)/sdk/%.o,$(SDK_SOURCES:.S=.c))
+	$(patsubst $(SDKDIR)/%.c,obj_$(TARGET)/sdk/%.o,$(SDK_SOURCES:.S=.c))
 	
 STATIC_LIBS=\
-	$(MIRA_LIB)/platform/$(TARGET)/libmira.a
+	$(LIBDIR)/platform/$(TARGET)/libmira.a
 
 COMMON_FLAGS=\
 	-mcpu=cortex-m4 \
@@ -125,12 +125,12 @@ obj_$(TARGET)/%.o: %.c
 	$(TRACE_CC)
 	$(Q)$(CC) $(CFLAGS) $^ -c -o $@
 
-obj_$(TARGET)/sdk/%.o: $(NRF5_SDK)/%.c
+obj_$(TARGET)/sdk/%.o: $(SDKDIR)/%.c
 	@mkdir -p $(@D)
 	$(TRACE_CC)
 	$(Q)$(CC) $(CFLAGS) $^ -c -o $@
 
-obj_$(TARGET)/sdk/%.o: $(NRF5_SDK)/%.S
+obj_$(TARGET)/sdk/%.o: $(SDKDIR)/%.S
 	@mkdir -p $(@D)
 	$(TRACE_CC)
 	$(Q)$(CC) $(CFLAGS) $^ -c -o $@

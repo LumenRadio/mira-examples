@@ -28,6 +28,7 @@
 #include <mira.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "../fota_sender_with_driver/fota_driver.h"
 
@@ -128,7 +129,7 @@ PROCESS_THREAD(main_proc, ev, data)
     while (1) {
         for (slot = 0; slot < NUMBER_OF_SLOTS; slot++) {
             if (mira_fota_is_valid(slot)) {
-                printf("%s, Valid image for slot: %d with %ld bytes, version %d\n",
+                printf("%s, Valid image for slot: %d with %" PRIu32 " bytes, version %d\n",
                        net_state(),
                        slot,
                        mira_fota_get_image_size(slot),
