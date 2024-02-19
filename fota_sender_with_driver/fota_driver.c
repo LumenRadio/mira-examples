@@ -91,9 +91,14 @@ int fota_driver_erase(uint16_t slot_id, void (*done_callback)(void* storage), vo
 
 void fota_set_driver(void)
 {
-    mira_fota_set_driver(fota_driver_init,
-                         fota_driver_get_size,
-                         fota_driver_read,
-                         fota_driver_write,
-                         fota_driver_erase);
+    /* Make sure the unassigned callbacks are set to NULL */
+    mira_fota_driver_t fota_driver = {
+        .init = fota_driver_init,
+        .get_size = fota_driver_get_size,
+        .read = fota_driver_read,
+        .write = fota_driver_write,
+        .erase = fota_driver_erase,
+    };
+
+    mira_fota_set_driver(&fota_driver);
 }
