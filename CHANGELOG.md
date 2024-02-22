@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 
 ### Added
+- Added bulk data collection example
 - Added nrf52832 Fota bootloader build
 - Added flash write example
 - Added changelog file

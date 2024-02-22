@@ -25,6 +25,7 @@ Then build the example as described in the example's README.md.
 | [Blink example](blink/README.md) | GPIO blinking LEDs |
 | [Blink sync client](blink_sync_client/README.md) | Synchronized blinking of LEDs |
 | [Blink sync server](blink_sync_server/README.md) | Synchronized blinking of LEDs |
+| [Bulk data collection](bulk_data_collection/README.md) | Transfer of large data between nodes |
 | [Custom module example](custom_module/README.md) | How to register a custom module configuration |
 | [Flash write example](examples/flash_write/README.md) | Uses the Mira flash API to write some data into the FLASH memory area. It uses Mira processes to write asynchronously and verifies the resulting flash contents.                 |
 | [FOTA receiver](fota_receiver/README.md) | Demo of FOTA reception process |
