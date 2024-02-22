@@ -2,7 +2,7 @@ PROJECT_NAME     := secure_bootloader_ble_s140_pca10056
 TARGETS          := nrf52840_xxaa_s140
 OUTPUT_DIRECTORY := _build
 
-SDK_ROOT ?= ../../../../vendor/nrf5-sdk
+SDK_ROOT ?= ../../../../../nrf5-sdk
 PROJ_DIR := ../..
 
 $(OUTPUT_DIRECTORY)/nrf52840_xxaa_s140.out: \

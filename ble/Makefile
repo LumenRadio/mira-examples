@@ -9,7 +9,7 @@ MIRA_DEPRECATED=0
 TARGET ?= nrf52832ble-os
 LIBDIR ?= $(CURDIR)/../..
 
-SDKDIR ?= $(CURDIR)/../vendor/nrf5-sdk
+SDKDIR ?= $(CURDIR)/../../nrf5-sdk
 
 vpath %.c $(SDKDIR)/components
 

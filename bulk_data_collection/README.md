@@ -65,7 +65,7 @@ To build the example, in either the sender or receiver directory run:
 ```
 make TARGET=<target>
 ```
-The example assumes that libmira is placed in vendor/, to specify another path run:
+The example assumes that libmira is placed in the same folder as mira-examples, to specify another path run:
 ```
 make LIBDIR=<path-to-libmira> TARGET=<target>
 ```

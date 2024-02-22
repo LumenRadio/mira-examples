@@ -1,5 +1,5 @@
 PROJ_DIR					 := $(CURDIR)
-SDKDIR           ?= $(PROJ_DIR)/../vendor/nrf5-sdk
+SDKDIR           ?= $(PROJ_DIR)/../../nrf5-sdk
 GNU_INSTALL_ROOT ?= 
 
 PROJECT_NAME     := secure_bootloader_usb_mbr_pca10056

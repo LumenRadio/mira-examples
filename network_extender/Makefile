@@ -13,7 +13,7 @@ NRFUTIL=nrfutil
 TARGET ?= nrf52840ble-os
 LIBDIR ?= $(CURDIR)/../..
 
-SDKDIR ?= $(CURDIR)/../vendor/nrf5-sdk
+SDKDIR ?= $(CURDIR)/../../nrf5-sdk
 
 LDSCRIPT?=$(TARGET)-fw.ld
 
