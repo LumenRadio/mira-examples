@@ -26,7 +26,6 @@
  */
 
 #include "fota_update.h"
-#include "crc.h"
 
 #include "nrf_dfu_types.h"
 #include "nrf_sdh_soc.h"
@@ -39,16 +38,6 @@
 // Define taken from nrf_dfu_settings.c
 #define DFU_SETTINGS_INIT_COMMAND_OFFSET offsetof(nrf_dfu_settings_t, init_command)
 
-// Taken from swap.h, to be removed with updated mira fota API
-typedef struct
-{
-    uint32_t size;     /*< Size of the image. may be less than the swap storage size */
-    uint32_t checksum; /*< CRC-32 of the content, up until size. */
-    uint16_t type;     /*< Id identifying the content, not validated by checksum */
-    uint8_t flags;     /*< Field for flags */
-    uint8_t version;   /*< Image version number. Note: not related to software version number  */
-} swap_header_t;
-
 // Addresses taken from link script
 extern uint8_t __ApplicationStart;
 extern uint8_t __ApplicationEnd;
@@ -56,7 +45,7 @@ extern uint8_t __SwapStart;
 extern nrf_dfu_settings_t __BlSettingsStart;
 
 static const nrf_dfu_settings_t* flash_settings = NULL;
-static const swap_header_t* fota_header = NULL;
+static const mira_fota_header_t* fota_header = NULL;
 
 static struct
 {
@@ -89,7 +78,7 @@ const char* net_state(void)
 
 static uint32_t calc_settings_crc(const nrf_dfu_settings_t* settings)
 {
-    crc_t crc_calc;
+    mira_crc_ctx_t crc_ctx;
 
     if (settings == NULL) {
         return 0;
@@ -97,12 +86,15 @@ static uint32_t calc_settings_crc(const nrf_dfu_settings_t* settings)
 
     // See the nrf_dfu_settings_t struct, the CRC is calculated for the data
     // between the CRC and init command.
-    crc_init(&crc_calc);
-    crc_update(&crc_calc,
-               (uint8_t*)((uint32_t)settings + sizeof(settings->crc)),
-               DFU_SETTINGS_INIT_COMMAND_OFFSET - sizeof(settings->crc));
+    mira_crc_init(&crc_ctx);
+    mira_crc_update(&crc_ctx,
+                    (uint8_t*)((uint32_t)settings + sizeof(settings->crc)),
+                    DFU_SETTINGS_INIT_COMMAND_OFFSET - sizeof(settings->crc));
 
-    return crc_get(&crc_calc);
+    uint32_t crc_value;
+    mira_crc_get(&crc_ctx, &crc_value);
+
+    return crc_value;
 }
 
 PROCESS_THREAD(fota_upgrade_process, ev, data)
@@ -210,7 +202,7 @@ int fota_init()
     uint32_t application_max_size;
 
     flash_settings = (nrf_dfu_settings_t*)(&__BlSettingsStart);
-    fota_header = (swap_header_t*)(&__SwapStart);
+    fota_header = (mira_fota_header_t*)(&__SwapStart);
 
     // Ensure that the data in the settings page is correct
     application_max_size = (uint32_t)&__ApplicationEnd - (uint32_t)&__ApplicationStart;

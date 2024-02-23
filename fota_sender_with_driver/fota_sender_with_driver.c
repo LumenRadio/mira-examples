@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "fota_crc_tool.h"
 #include "fota_driver.h"
 #define HEADER_SIZE 12
 
@@ -149,8 +148,9 @@ PROCESS_THREAD(fota_sender_proc, ev, data)
     static mira_size_t j;
     static uint8_t buffer[32];
     static uint8_t slot;
-    static uint32_t crc_state;
     static mira_size_t image_size;
+    static mira_crc_ctx_t crc_ctx;
+    uint32_t crc_value;
 
     PROCESS_BEGIN();
 
@@ -190,7 +190,7 @@ PROCESS_THREAD(fota_sender_proc, ev, data)
             PROCESS_WAIT_WHILE(mira_fota_is_working());
 
             /* Write some arbitrary data, which could be a firmware */
-            fota_crc_init(&crc_state);
+            mira_crc_init(&crc_ctx);
 
             for (i = 0; i < image_size; i += 32) {
                 mira_size_t block_size = 32;
@@ -200,7 +200,7 @@ PROCESS_THREAD(fota_sender_proc, ev, data)
                 for (j = 0; j < block_size; j++) {
                     buffer[j] = (i + j + version_no) % 77;
                 }
-                fota_crc_update(&crc_state, buffer, block_size);
+                mira_crc_update(&crc_ctx, buffer, block_size);
                 if (mira_fota_write(i, buffer, block_size) != MIRA_SUCCESS) {
                     printf("ERROR: mira_fota_write failed\n");
                     break;
@@ -214,9 +214,9 @@ PROCESS_THREAD(fota_sender_proc, ev, data)
                 PROCESS_PAUSE();
             }
 
+            mira_crc_get(&crc_ctx, &crc_value);
             /* Write the header */
-            if (mira_fota_write_header(image_size, fota_crc_get(&crc_state), 0, 0, version_no) !=
-                MIRA_SUCCESS) {
+            if (mira_fota_write_header(image_size, crc_value, 0, 0, version_no) != MIRA_SUCCESS) {
                 printf("ERROR: mira_fota_write_header failed\n");
                 break;
             }

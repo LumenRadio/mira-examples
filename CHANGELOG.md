@@ -17,3 +17,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Use new nrfutil version
 - Update fota_sender_with_driver example to use new mira_fota_set_driver API
+- Update FOTA examples to use Mira CRC API
+- Update fota_receiver_with_bootloader to use new mira_fota_header_t struct

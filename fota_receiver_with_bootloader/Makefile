@@ -14,10 +14,7 @@ PRIVATE_KEY_FILE = private.key
 
 SOURCE_FILES = \
 	fota_receiver.c \
-	fota_update.c \
-	crc/crc.c
-
-CFLAGS += -I$(CURDIR)/crc
+	fota_update.c
 
 ifeq ($(TARGET), nrf52840ble-os)
 BOOTLOADER_PATH=bootloader/pca10056_ble/armgcc

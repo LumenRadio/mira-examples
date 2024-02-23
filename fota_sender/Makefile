@@ -10,8 +10,7 @@ TARGET ?= nrf52832ble-os
 LIBDIR ?= $(CURDIR)/../..
 
 SOURCE_FILES = \
-	fota_sender.c \
-	fota_crc_tool.c
+	fota_sender.c
 
 include $(LIBDIR)/Makefile.include
 

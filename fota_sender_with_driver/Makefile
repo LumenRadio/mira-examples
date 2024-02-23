@@ -11,8 +11,7 @@ LIBDIR ?= $(CURDIR)/../..
 
 SOURCE_FILES = \
 	fota_driver.c \
-	fota_sender_with_driver.c \
-	fota_crc_tool.c	
+	fota_sender_with_driver.c
 
 include $(LIBDIR)/Makefile.include
 
